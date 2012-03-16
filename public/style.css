@@ -1,0 +1,39 @@
+ body {
+    background-color:#f8f8f8;
+    font-family:helvetica;
+    margin:20px;
+  }
+  a {
+    color:#333;
+    text-decoration:underline;
+  }
+  .load-event { 
+    border-radius:5px;
+    background-color:#fff;
+    border:#fc0 1px solid;
+    padding:20px;
+    margin:20px;
+    min-height:80px;
+  }
+  .load-pad {
+    float:left;
+    border:#fc0 1px solid;
+    padding:10px;
+    border-radius:5px;
+  }
+  label {
+    display:block;
+  }
+  .another {
+    background-color:#fff;
+    border-radius:5px;
+    border:#fc0 1px solid;
+    padding:10px;
+    width:200px;
+    text-align:center;
+    cursor:pointer;
+  }
+  textarea {
+    height:200px;
+    width:600px;
+  }

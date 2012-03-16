@@ -1,0 +1,11 @@
+%html
+  %body
+    %div
+    - @evs.each do |event|
+      %div
+        = event['event_start_date'] 
+        = event['event_start_time'] 
+        = event['event_name']
+        = event['group']['name']
+        = event['location']['location_name']
+        = event['category']['category_name']

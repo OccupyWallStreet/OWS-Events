@@ -1,0 +1,27 @@
+!!! XML
+%rss{:version => "2.0", "xmlns:atom" => "http://www.w3.org/2005/Atom"}
+  %channel
+    %title 
+      NYCGA Events
+    %link 
+      http://www.nycga.net/events
+    %description 
+      Occupy Wall Street / New York City General Assembly Events and Happenings
+    <atom:link href="http://www.nycga.net/events_rss" rel="self" type="application/rss+xml" />
+    - @listings.each do |listing| 
+      %item
+        %title #{listing['event_name']}  #{listing['event_start_time']}  #{listing['event_start_date']}
+        %link http://www.nycga.net/events/event/#{listing['event_slug']}
+        %pubDate 
+          = listing['event_pub_date'].to_s
+        %author
+          = listing['group']['name']
+        %description
+          :cdata
+            #{listing['group']['name']}
+            #{listing['category']['category_name'] }
+            #{listing['event_notes']}
+            Location:
+            #{listing['location']['location_name']}
+            Address:
+            #{listing['location']['location_address']}

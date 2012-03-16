@@ -1,0 +1,40 @@
+!!!
+%html
+  %head
+    %title
+      Example Events Widget
+    %link{"rel" => "stylesheet", "href" => "style.css", "type" => "text/css"}
+    %script{:type => "text/javascript", :src=> "http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"}
+    %script{:type => "text/javascript", :src=> "events_widget.js"}
+    
+      
+  %body
+    %div.load-event
+      %h1
+        get the source code
+      %textarea 
+        <!-- begin events widget source --> 
+        %script{:type => "text/javascript", :src=> "http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"}
+        %script{:type => "text/javascript", :src=> "events_widget.js"}
+        %div#nycga-events
+          %div.load-event
+            %h1.event_name
+            %h2.event_start_date
+            %h2.event_start_time
+            %h3.event_location
+            %h3.group_info
+        <!-- end events widget source -->
+          
+    %div#nycga-events
+      %div.load-event{:style=>"display:none"}
+        %h1
+          %a.event_name
+        %h2.event_start_date
+        %h2.event_start_time
+        %h3.event_location
+        %h3.group_info
+        %div.event_notes
+  
+
+      
+  
