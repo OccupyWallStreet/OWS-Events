@@ -162,15 +162,20 @@ end
  
  
   get '/json' do
+    response['Access-Control-Allow-Origin'] = '*'
+    
     @today = Time.now.strftime("%Y-%m-%d")
     @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
     @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}}).to_json
+    content_type 'application/json'
     haml :json
   end
 
  #time is either today, this week or all
  #default is this week
  get '/json/:time' do
+   response['Access-Control-Allow-Origin'] = '*'
+   
    time = params[:time]
    @today = Time.now.strftime("%Y-%m-%d")
    @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
@@ -188,6 +193,8 @@ end
  end
  
  get '/rss' do
+   response['Access-Control-Allow-Origin'] = '*'
+   
    #get today's listing from the mongo cache
    @today = Time.now.strftime("%Y-%m-%d")
    @listings = Listing.all(:event_start_date => @today)

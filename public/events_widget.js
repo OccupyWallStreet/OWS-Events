@@ -12,10 +12,15 @@ $(document).ready(function(){
 
   var url = "http://events.occupy.net/json";
   //get request goes out to proxy, receives json
-  //can't make the call directly because we don't want to expose the api key
+  console.log(url);
   $.ajax({
     url:url,
     dataType:'json',
+    crossDomain:true,
+    complete:function(data){
+      console.log(data)
+    },
+    error: function(jqXHR, textStatus, errorThrown) { console.log(errorThrown); console.log(textStatus); console.log(jqXHR) },
     success: function(data) {
       $(data).each(function(i,c){
         console.log(c.event_name)
