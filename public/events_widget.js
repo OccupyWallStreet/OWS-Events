@@ -10,7 +10,7 @@ $(document).ready(function(){
     load_div(d,content);
   }
 
-  var url = "http://localhost:9393/json";
+  var url = "http://events.occupy.net/json";
   //get request goes out to proxy, receives json
   //can't make the call directly because we don't want to expose the api key
   $.ajax({

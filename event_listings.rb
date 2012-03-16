@@ -6,17 +6,6 @@ require 'haml'
 require 'data_mapper'
 require 'time'
 
-DataMapper.setup(:default, {
- :adapter  => 'mysql',
- :host     => 'localhost',
- :username => 'root' ,
- :password => 'root',
- :database => 'nycga'})
- 
-DataMapper::Logger.new($stdout, :debug)
-DataMapper.setup(:default, 'mysql://root:root@localhost/nycga')
-
-
 #some utils for datamapper classes
 module DMUtils
   def to_hash
@@ -101,7 +90,6 @@ end
 
 DataMapper.finalize
 
-MongoMapper::connection = Mongo::Connection.new('localhost')
 MongoMapper::database = 'ows_events'
 
 class Listing
@@ -131,7 +119,11 @@ end
    @evs = Array.new
    @events.each do |event|
      #force load of events description
-     event.event_notes.length
+     begin
+       event.event_notes.length
+     rescue NoMethodError => e
+       event.event_notes = ""
+     end
      #get the embedded objects for group and location
      begin
        gr = event.group.to_hash

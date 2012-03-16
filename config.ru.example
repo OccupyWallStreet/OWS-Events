@@ -1,0 +1,14 @@
+require './event_listings'
+
+MongoMapper::connection = Mongo::Connection.new('localhost')
+DataMapper.setup(:default, {
+ :adapter  => 'mysql',
+ :host     => 'localhost',
+ :username => 'root' ,
+ :password => 'root',
+ :database => 'nycga'})
+ 
+DataMapper::Logger.new($stdout, :debug)
+DataMapper.setup(:default, 'mysql://root:root@localhost/nycga')
+
+run Sinatra::Application
