@@ -5,8 +5,26 @@ require 'mongo_mapper'
 require 'haml'
 require 'data_mapper'
 require 'time'
+require './config.rb'
 
-#some utils for datamapper classes
+
+#I don't understand how to configure the Rack::Protection module in Thin on the prod server to 
+#allow cross-domain json calls, so I'm monkey patching the call to always return valid
+class Rack::Protection::JsonCsrf
+  def call(env)
+    status, headers, body = app.call(env)
+    if headers['Content-Type'].to_s.split(';', 2).first =~ /^\s*application\/json\s*$/
+      if 1==2
+        result = react(env)
+        warn env, "attack prevented by #{self.class}"
+     end
+    end
+    result or [status, headers, body]
+  end
+end
+
+
+  #some utils for datamapper classes
 module DMUtils
   def to_hash
     h = {}
@@ -105,56 +123,56 @@ class Listing
   end
 end
 
-#set up some time / date spans
-
+  
   get '/' do
     haml :index
   end
 
- get '/find' do
-   @today = Time.now.strftime("%Y-%m-%d")
-   @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
+ get '/crawl/:pass' do
+   if params[:pass] == "cheesekanafeh"
+     @today = Time.now.strftime("%Y-%m-%d")
+     @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
 
-   @events = WpEmEvent.all(:event_start_date.gte => @today, :event_start_date.lte => @this_week, :order => :event_start_date.asc)
-   @evs = Array.new
-   @events.each do |event|
-     #force load of events description
-     begin
-       event.event_notes.length
-     rescue NoMethodError => e
-       event.event_notes = ""
-     end
-     #get the embedded objects for group and location
-     begin
-       gr = event.group.to_hash
-     rescue NoMethodError => e
-       gr = {}
-     end
+     @events = WpEmEvent.all(:event_start_date.gte => @today, :event_start_date.lte => @this_week, :order => :event_start_date.asc)
+     @evs = Array.new
+     @events.each do |event|
+       #force load of events description
+       begin
+         event.event_notes.length
+       rescue NoMethodError => e
+         event.event_notes = ""
+       end
+       #get the embedded objects for group and location
+       begin
+         gr = event.group.to_hash
+       rescue NoMethodError => e
+         gr = {}
+       end
      
-     begin
-      lo = event.location.to_hash
-     rescue NoMethodError => e
-      lo = {}
-     end
-     ca = {}
-     begin
-       ca = event.category.to_hash
-      rescue NoMethodError => e
+       begin
+        lo = event.location.to_hash
+       rescue NoMethodError => e
+        lo = {}
+       end
        ca = {}
-     end
+       begin
+         ca = event.category.to_hash
+        rescue NoMethodError => e
+         ca = {}
+       end
 
-     #put them all together as a hash
-     ev = event.to_hash
-     ev['event_pub_date'] = Time.parse(event['event_start_date'] + " " + event['event_start_time']) 
-     ev['location'] = lo
-     ev['group'] = gr
-     ev['category'] = ca
-     @evs.push(ev)
-     #save as upsert
-     Listing.collection.update({:event_id => ev['event_id'].to_i},ev,:upsert => true)
+       #put them all together as a hash
+       ev = event.to_hash
+       ev['event_pub_date'] = Time.parse(event['event_start_date'] + " " + event['event_start_time']) 
+       ev['location'] = lo
+       ev['group'] = gr
+       ev['category'] = ca
+       @evs.push(ev)
+       #save as upsert
+       Listing.collection.update({:event_id => ev['event_id'].to_i},ev,:upsert => true)
+     end
+     haml :find
    end
-   haml :find
-   
  end
  get '/example' do
   haml :example
@@ -166,7 +184,7 @@ end
     
     @today = Time.now.strftime("%Y-%m-%d")
     @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
-    @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}}).to_json
+    @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}}, :order => [:event_pub_date,'asc']).to_json
     content_type 'application/json'
     haml :json
   end
@@ -181,13 +199,13 @@ end
    @this_week = (Time.now + (7 * 24 * 3600)).strftime("%Y-%m-%d")
    case time
    when "today"
-     @json =  Listing.all(:event_start_date => @today).to_json
+     @json =  Listing.all(:event_start_date => @today, :order => [:event_pub_date,'asc']).to_json
    when "week"
-     @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}}).to_json
+     @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}},:order => [:event_pub_date,'asc']).to_json
    when "all"
      @json =  Listing.all({:event_start_date.gte => @today}).to_json
    else
-     @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}}).to_json   
+     @json = Listing.all(:conditions=>{:event_start_date=> {'$gte' => @today}, :event_start_date => {'$lte' => @this_week}},:order => [:event_pub_date,'asc']).to_json   
    end
    haml :json
  end
@@ -197,7 +215,7 @@ end
    
    #get today's listing from the mongo cache
    @today = Time.now.strftime("%Y-%m-%d")
-   @listings = Listing.all(:event_start_date => @today)
+   @listings = Listing.all(:event_start_date => @today,:order => [:event_pub_date,'asc'])
    content_type 'application/rss+xml'
    haml(:rss, :format => :xhtml, :escape_html => true, :layout => false)
  end
@@ -219,7 +237,6 @@ end
   
   #publish json flat file of events
     #split by days (just like livetweets)
-    #json stringify?
   get '/json/publish' do
     #get events from mongo
   end

@@ -2,6 +2,47 @@
 %html
   %head
     %title
-      Example Events Widget
+      Occupy Wall Street Events
+    %link{"rel" => "stylesheet", "href" => "style.css", "type" => "text/css"}
+    %script{:type => "text/javascript", :src=> "http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"}
+    %script{:type => "text/javascript", :src=> "/events_widget.js"}
   %body
-    %a{:href => "/example"}events widget example
+    %h1 Occupy Wall Street Events
+    %div.right
+      %h2 Events Widget
+      %p Use the embed code below to drop NYCGA events into any webpage.  
+      %textarea 
+        <!-- begin events embed code --> 
+        %script{:type => "text/javascript", :src=> "http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"}
+        %script{:type => "text/javascript", :src=> "http://events.occupy.net/events_widget.js"}
+        %div#nycga-events
+          %div.load-event
+            %h1.event_name
+            %h2.event_start_date
+            %h2.event_start_time
+            %h3.event_location
+            %h3.group_info
+        <!-- end events embed code -->
+      %h3 
+        json format - 
+        %a{:href=>"/json/today"} today
+        %a{:href=>"/json/week"} this week
+
+      %h3 
+        %a{:href=>"/rss"} rss 
+        format
+    %div.left
+      %p These event listings are free for the taking.  You can 
+      %a{:href => "/example"}   see this week's events
+      subscribe to rss, or use the json api to pull events into your own website or as a data source for mobile apps.  
+      %div#nycga-events
+        %div.load-event{:style=>"display:none"}
+          %h1
+            %a.event_name
+          %h2.event_start_date
+          %h2.event_start_time
+          %h3.event_location
+          %h3.group_info
+          %div.event_notes
+      
+    

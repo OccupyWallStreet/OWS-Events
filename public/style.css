@@ -3,11 +3,21 @@
     font-family:helvetica;
     margin:20px;
   }
+  p {
+    font-size:16px;
+  }
+  .right {
+    float:right;
+    width:35%;
+  }
+  .left {
+    width:60%;
+  }
   a {
     color:#333;
     text-decoration:underline;
   }
-  .load-event { 
+  .load-event, .content { 
     border-radius:5px;
     background-color:#fff;
     border:#fc0 1px solid;
